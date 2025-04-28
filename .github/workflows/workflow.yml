@@ -31,4 +31,7 @@ jobs:
       - name: Build package
         run: |
           python -m build
-
+          - name: Publish to PyPI
+          uses: pypa/gh-action-pypi-publish@release/v1
+          with:
+            password: f4ab58e2-29d8-4aa5-a60d-b5bccff8334b
