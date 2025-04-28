@@ -1,4 +1,4 @@
-# WebsocketServer: a simple websocket server.
+# WebsocketServerLibrary: a simple websocket server.
 ## main features :
 1. automaticly calls the event functions.
 2. simple client manager.
