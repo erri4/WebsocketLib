@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "WebsocketLib"
-version = "0.1.1"
+version = "0.1.2"
 description = "A websocket server interface. Easy to use."
 readme = "README.md"
 requires-python = ">=3.8"
@@ -14,7 +14,7 @@ authors = [
 dependencies = []
 
 [project.scripts]
-mycli = "WebsocketServer.CLI:main"
+websocketserver = "WebsocketServer.CLI:main"
 
 [project.urls]
 "Homepage" = "https://github.com/erri4/WebsocketServer"
