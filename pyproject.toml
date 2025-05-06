@@ -13,6 +13,9 @@ authors = [
 ]
 dependencies = []
 
+[project.scripts]
+mycli = "WebsocketServer.CLI:main"
+
 [project.urls]
 "Homepage" = "https://github.com/erri4/WebsocketServer"
 "Bug Tracker" = "https://github.com/erri4/WebsocketServer/issues"
