@@ -3,7 +3,7 @@ import hashlib
 import base64
 import struct
 import threading
-from typing import NoReturn
+from typing import NoReturn, Callable
 
 
 class WebsocketServer:
@@ -102,7 +102,7 @@ class WebsocketServer:
         pass
 
 
-    def set_fn_new_client(self, fn: callable) -> None:
+    def set_fn_new_client(self, fn: Callable) -> None:
         """
         set the new client function.
 
@@ -113,7 +113,7 @@ class WebsocketServer:
         self._new_client = fn
 
 
-    def set_fn_client_left(self, fn: callable) -> None:
+    def set_fn_client_left(self, fn: Callable) -> None:
         """
         set the client left function.
 
@@ -124,7 +124,7 @@ class WebsocketServer:
         self._client_left = fn
 
 
-    def set_fn_message_received(self, fn: callable) -> None:
+    def set_fn_message_received(self, fn: Callable) -> None:
         """
         set the message_received function.
 
