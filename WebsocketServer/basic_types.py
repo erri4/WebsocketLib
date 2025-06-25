@@ -1,4 +1,3 @@
-from types import FunctionType
 import socket
 import struct
 
