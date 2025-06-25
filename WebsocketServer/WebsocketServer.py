@@ -1,9 +1,10 @@
+from .basic_types import Client, _new_client_t, _client_left_t, _message_received_t
 import socket
 import hashlib
 import base64
 import struct
 import threading
-from typing import NoReturn, Callable
+from typing import NoReturn
 
 
 class WebsocketServer:
@@ -18,91 +19,12 @@ class WebsocketServer:
         self.port = port
 
 
-    class Client:
-        """
-        a class for managing the websocket server clients.
-        """
-        def __init__(self, sock: socket.socket) -> None:
-            """
-            store the socket itself.
-
-            <code>sock: socket: </code> the websocket.
-
-            <code>return: None. </code>
-            """
-            self.sock = sock
+    _new_client: _new_client_t
+    _client_left: _client_left_t
+    _message_received: _message_received_t
 
 
-        def frame_message(self, message: str) -> bytes:
-            """
-            frame a websocket message.
-
-            <code>message: string: </code> the message.
-
-            <code>return: bytes: </code> the frame header in bytes.
-            """
-            message_bytes = message.encode()
-            length = len(message_bytes)
-            frame_header = bytearray([0b10000001])
-            if length <= 125:
-                frame_header.append(length)
-            elif length <= 65535:
-                frame_header.append(126)
-                frame_header.extend(struct.pack('>H', length))
-            else:
-                frame_header.append(127)
-                frame_header.extend(struct.pack('>Q', length))
-            frame_header.extend(message_bytes)
-            return bytes(frame_header)
-        
-
-        def send(self, msg: str) -> None:
-            """
-            send data to the client.
-
-            <code>msg: string: </code> the data to be sent.
-
-            <code>return: None. </code>
-            """
-            response = self.frame_message(msg)
-            self.sock.send(response)
-
-
-    def _new_client(self, client: Client) -> None:
-        """
-        function to be excuted when a new connection is established.
-
-        <code>client: Client: </code> the client.
-
-        <code>return: None. </code>
-        """
-        pass
-
-
-    def _client_left(self, client: Client) -> None:
-        """
-        function to be excuted when a client left.
-
-        <code>client: Client: </code> the client.
-
-        <code>return: None. </code>
-        """
-        pass
-
-
-    def _message_received(self, client: Client, message: str):
-        """
-        function to be excuted when a client send a message.
-
-        <code>client: Client: </code> the client.<br>
-        <code>message: string: </code> the message.
-
-        <code>return: None. </code>
-        """
-        pass
-
-
-    def set_fn_new_client(self, fn: Callable) -> None:
+    def set_fn_new_client(self, fn: _new_client_t):
         """
         set the new client function.
 
@@ -111,9 +33,10 @@ class WebsocketServer:
         <code>return: None. </code>
         """
         self._new_client = fn
+        return self
 
 
-    def set_fn_client_left(self, fn: Callable) -> None:
+    def set_fn_client_left(self, fn: _client_left_t):
         """
         set the client left function.
 
@@ -122,9 +45,10 @@ class WebsocketServer:
         <code>return: None. </code>
         """
         self._client_left = fn
+        return self
 
 
-    def set_fn_message_received(self, fn: Callable) -> None:
+    def set_fn_message_received(self, fn: _message_received_t):
         """
         set the message_received function.
 
@@ -133,6 +57,7 @@ class WebsocketServer:
         <code>return: None. </code>
         """
         self._message_received = fn
+        return self
 
 
     def create_accept_key(self, request_key: str) -> str:
@@ -237,7 +162,7 @@ class WebsocketServer:
         self.server_socket.listen(5)
         while True:
             client_socket, client_address = self.server_socket.accept()
-            client_thread = threading.Thread(target=self.handle_client, args=(self.Client(client_socket),))
+            client_thread = threading.Thread(target=self.handle_client, args=(Client(client_socket),))
             client_thread.start()
 
 
