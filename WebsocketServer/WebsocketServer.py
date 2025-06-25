@@ -4,7 +4,7 @@ import hashlib
 import base64
 import struct
 import threading
-from typing import NoReturn
+from typing import Never
 
 
 class WebsocketServer:
@@ -152,7 +152,7 @@ class WebsocketServer:
                 pass
 
     
-    def run_forever(self) -> NoReturn:
+    def run_forever(self) -> Never:
         """
         run the websocket server forever.
         """
