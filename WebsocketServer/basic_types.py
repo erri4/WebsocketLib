@@ -1,5 +1,9 @@
+from typing import Callable
 import socket
 import struct
+
+
+class WebsocketServer: pass # this is just a placeholder
 
 
 class Client:
@@ -53,16 +57,9 @@ class Client:
 
 
 
-class _new_client_t():
-    def __call__(self, client: Client):
-        pass
+_new_client_t = Callable[[WebsocketServer, Client], None]
 
-
-class _client_left_t():
-    def __call__(self, client: Client):
-        pass
+_client_left_t = Callable[[WebsocketServer, Client], None]
     
 
-class _message_received_t():
-    def __call__(self, client: Client, message: str):
-        pass
+_message_received_t = Callable[[WebsocketServer, Client, str], None]
