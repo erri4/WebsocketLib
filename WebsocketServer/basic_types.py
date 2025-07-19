@@ -1,9 +1,6 @@
-from typing import Callable
+from typing import Callable, Self, TypeAlias
 import socket
 import struct
-
-
-class WebsocketServer: pass # this is just a placeholder
 
 
 class Client:
@@ -57,9 +54,9 @@ class Client:
 
 
 
-_new_client_t = Callable[[WebsocketServer, Client], None]
+_new_client_t: TypeAlias = Callable[[Self, Client], None]
 
-_client_left_t = Callable[[WebsocketServer, Client], None]
+_client_left_t: TypeAlias = Callable[[Self, Client], None]
     
 
-_message_received_t = Callable[[WebsocketServer, Client, str], None]
+_message_received_t: TypeAlias = Callable[[Self, Client, str], None]
