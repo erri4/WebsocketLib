@@ -18,11 +18,9 @@ class WebsocketServer:
         self.host = host
         self.port = port
 
-
     _new_client: _new_client_t
     _client_left: _client_left_t
     _message_received: _message_received_t
-
 
     def set_fn_new_client(self, fn: _new_client_t):
         """
@@ -35,7 +33,6 @@ class WebsocketServer:
         self._new_client = fn
         return self
 
-
     def set_fn_client_left(self, fn: _client_left_t):
         """
         set the client left function.
@@ -47,7 +44,6 @@ class WebsocketServer:
         self._client_left = fn
         return self
 
-
     def set_fn_message_received(self, fn: _message_received_t):
         """
         set the message_received function.
@@ -58,7 +54,6 @@ class WebsocketServer:
         """
         self._message_received = fn
         return self
-
 
     def create_accept_key(self, request_key: str) -> str:
         """
@@ -74,7 +69,6 @@ class WebsocketServer:
         accept_key = base64.b64encode(sha1_hash).decode()
         return accept_key
 
-
     def parse_websocket_frame(self, data: bytes) -> str:
         """
         parse a websocket frame.
@@ -83,25 +77,29 @@ class WebsocketServer:
 
         <code>retrun: string: </code> the message from the frame.
         """
-        first_byte, second_byte = data[0], data[1]
+        payload: bytes | bytearray | None = None
+        _, second_byte = data[0], data[1]
         length = second_byte & 0x7F
         is_masked = second_byte & 0x80 != 0
         if length == 126:
-            length = struct.unpack('>H', data[2:4])[0]
+            length = struct.unpack(">H", data[2:4])[0]
             header_size = 4
         elif length == 127:
-            length = struct.unpack('>Q', data[2:10])[0]
+            length = struct.unpack(">Q", data[2:10])[0]
             header_size = 10
         else:
             header_size = 2
         if is_masked:
-            mask_key = data[header_size:header_size+4]
-            payload_data = data[header_size+4:header_size+4+length]
-            payload = bytearray([payload_data[i] ^ mask_key[i % 4] for i in range(len(payload_data))])
+            mask_key = data[header_size : header_size + 4]
+            payload_data = data[header_size + 4 : header_size + 4 + length]
+            payload = bytearray(
+                [payload_data[i] ^ mask_key[i % 4] for i in range(len(payload_data))]
+            )
         else:
-            payload = data[header_size:header_size+length]
+            payload = data[header_size : header_size + length]
+        if payload is None:
+            return ""
         return payload.decode()
-
 
     def handle_client(self, client_socket: Client) -> None:
         """
@@ -116,15 +114,18 @@ class WebsocketServer:
             if not request:
                 print("Client disconnected during handshake.")
                 return
-            headers = {line.split(":")[0].strip(): line.split(":")[1].strip() for line in request.split("\r\n")[1:-2]}
-            webkey = headers.get('Sec-WebSocket-Key', '')
+            headers = {
+                line.split(":")[0].strip(): line.split(":")[1].strip()
+                for line in request.split("\r\n")[1:-2]
+            }
+            webkey = headers.get("Sec-WebSocket-Key", "")
             if webkey:
                 accept_key = self.create_accept_key(webkey)
                 response = (
-                    'HTTP/1.1 101 Switching Protocols\r\n'
-                    'Upgrade: websocket\r\n'
-                    'Connection: Upgrade\r\n'
-                    f'Sec-WebSocket-Accept: {accept_key}\r\n\r\n'
+                    "HTTP/1.1 101 Switching Protocols\r\n"
+                    "Upgrade: websocket\r\n"
+                    "Connection: Upgrade\r\n"
+                    f"Sec-WebSocket-Accept: {accept_key}\r\n\r\n"
                 )
                 client_socket.sock.send(response.encode())
             else:
@@ -138,11 +139,11 @@ class WebsocketServer:
                         break
                     message = self.parse_websocket_frame(data)
                     self._message_received(client_socket, message)
-                except socket.error as e:
+                except socket.error:
                     break
-                except Exception as e:
+                except Exception:
                     break
-        except Exception as e:
+        except Exception:
             pass
         finally:
             try:
@@ -151,7 +152,6 @@ class WebsocketServer:
             except socket.error:
                 pass
 
-    
     def run_forever(self) -> Never:
         """
         run the websocket server forever.
@@ -162,15 +162,16 @@ class WebsocketServer:
         self.server_socket.listen(5)
         while True:
             client_socket, client_address = self.server_socket.accept()
-            client_thread = threading.Thread(target=self.handle_client, args=(Client(client_socket),))
+            client_thread = threading.Thread(
+                target=self.handle_client, args=(Client(client_socket),)
+            )
             client_thread.start()
-
 
     def start(self, threaded: bool = False) -> None:
         """
         start the websocket server.
         """
-        print(f'server running on {self.host}:{self.port}...')
+        print(f"server running on {self.host}:{self.port}...")
         if threaded:
             self.thread = threading.Thread(target=self.run_forever, daemon=True)
             self.thread.start()
